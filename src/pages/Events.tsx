@@ -66,11 +66,19 @@ export default function Events() {
     setFormOpen(true);
   };
 
+  const toDatetime = (val: string) => {
+    if (!val) return val;
+    // datetime-local returns "YYYY-MM-DDTHH:mm" — backend expects "YYYY-MM-DD HH:mm:ss"
+    return val.replace('T', ' ') + (val.length === 16 ? ':00' : '');
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const payload = {
         ...form,
+        starts_at: toDatetime(form.starts_at),
+        ends_at: form.ends_at ? toDatetime(form.ends_at) : null,
         max_participants: form.max_participants ? parseInt(form.max_participants) : null,
       };
       if (selected) {
@@ -80,9 +88,12 @@ export default function Events() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar evento.');
+      const msg = err?.response?.data?.message || err?.response?.data?.errors
+        ? Object.values(err.response.data.errors).flat().join('\n')
+        : 'Erro ao salvar evento.';
+      alert(msg);
     } finally {
       setSaving(false);
     }
