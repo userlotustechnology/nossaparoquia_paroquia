@@ -1,0 +1,163 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import api from '@/lib/api';
+import type { DashboardMetrics } from '@/types';
+import {
+  Users,
+  Calendar,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  ArrowRight,
+} from 'lucide-react';
+
+export default function Dashboard() {
+  const { permissions } = useAuth();
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/parish-admin/dashboard')
+      .then((res) => setMetrics(res.data.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500" />
+      </div>
+    );
+  }
+
+  const cards = [
+    {
+      label: 'Paroquianos',
+      value: metrics?.parishioners_count ?? 0,
+      icon: Users,
+      color: 'bg-blue-50 text-blue-600',
+      href: '/paroquianos',
+    },
+    {
+      label: 'Próximos Eventos',
+      value: metrics?.events_upcoming ?? 0,
+      icon: Calendar,
+      color: 'bg-purple-50 text-purple-600',
+      href: '/eventos',
+    },
+    {
+      label: 'Receitas (Mês)',
+      value: formatCurrency(metrics?.income_this_month ?? 0),
+      icon: TrendingUp,
+      color: 'bg-green-50 text-green-600',
+      href: '/financeiro',
+    },
+    {
+      label: 'Despesas (Mês)',
+      value: formatCurrency(metrics?.expense_this_month ?? 0),
+      icon: TrendingDown,
+      color: 'bg-red-50 text-red-600',
+      href: '/financeiro',
+    },
+  ];
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">
+          Olá, bem-vindo(a)!
+        </h1>
+        <p className="text-gray-500">
+          {permissions?.parish.name} — Visão geral
+        </p>
+      </div>
+
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {cards.map((card) => (
+          <Link
+            key={card.label}
+            to={card.href}
+            className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className={`p-2 rounded-lg ${card.color}`}>
+                <card.icon className="h-5 w-5" />
+              </div>
+              <ArrowRight className="h-4 w-4 text-gray-400" />
+            </div>
+            <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+            <p className="text-sm text-gray-500">{card.label}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* Dízimos summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Dízimos</h2>
+            <DollarSign className="h-5 w-5 text-accent-400" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Este mês</p>
+              <p className="text-xl font-bold text-green-600">
+                {formatCurrency(metrics?.tithes_this_month ?? 0)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Mês anterior</p>
+              <p className="text-xl font-bold text-gray-700">
+                {formatCurrency(metrics?.tithes_last_month ?? 0)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming events */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Próximos Eventos</h2>
+            <Link to="/eventos" className="text-sm text-primary-500 hover:underline">
+              Ver todos
+            </Link>
+          </div>
+          {metrics?.upcoming_events && metrics.upcoming_events.length > 0 ? (
+            <ul className="space-y-3">
+              {metrics.upcoming_events.slice(0, 4).map((evt) => (
+                <li key={evt.id} className="flex items-center gap-3 text-sm">
+                  <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
+                    <Calendar className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{evt.title}</p>
+                    <p className="text-gray-500">
+                      {new Date(evt.starts_at).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-400">Nenhum evento próximo</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(value);
+}
