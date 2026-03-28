@@ -90,9 +90,10 @@ export default function Events() {
       fetchData();
     } catch (err: any) {
       console.error(err);
-      const msg = err?.response?.data?.message || err?.response?.data?.errors
-        ? Object.values(err.response.data.errors).flat().join('\n')
-        : 'Erro ao salvar evento.';
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar evento.');
       alert(msg);
     } finally {
       setSaving(false);
