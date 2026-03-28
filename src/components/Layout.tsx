@@ -10,7 +10,6 @@ import {
   LogOut,
   Menu,
   X,
-  Church,
   ChevronDown,
 } from 'lucide-react';
 
@@ -139,7 +138,7 @@ function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: Sid
       {/* Logo / Header */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Church className="h-7 w-7 text-primary-500" />
+          <img src="/logo.png" alt="Logo" className="h-8 w-8 rounded-full" />
           <span className="text-lg font-bold text-primary-500">Paróquia</span>
         </div>
         {onClose && (
