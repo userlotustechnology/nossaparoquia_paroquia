@@ -105,7 +105,7 @@ export default function MassIntentions() {
       intention_text: item.intention_text || '',
       intention_for: item.intention_for || '',
       type: item.type || 'thanksgiving',
-      requested_date: item.requested_date || '',
+      requested_date: item.requested_date ? item.requested_date.slice(0, 10) : '',
       status: item.status || 'pending',
       notes: item.notes || '',
     });
@@ -122,9 +122,13 @@ export default function MassIntentions() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar intenção.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar intenção.');
+      alert(msg);
     } finally {
       setSaving(false);
     }

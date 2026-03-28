@@ -87,7 +87,7 @@ export default function Campaigns() {
       name: item.name || '',
       description: item.description || '',
       goal_amount: item.goal_amount?.toString() || '',
-      deadline: item.deadline || '',
+      deadline: item.deadline ? item.deadline.slice(0, 10) : '',
       status: item.status || 'active',
     });
     setFormOpen(true);
@@ -99,6 +99,7 @@ export default function Campaigns() {
       const payload = {
         ...form,
         goal_amount: form.goal_amount ? parseFloat(form.goal_amount) : null,
+        deadline: form.deadline || null,
       };
       if (selected) {
         await api.put(`/parish-admin/campaigns/${selected.id}`, payload);
@@ -107,9 +108,13 @@ export default function Campaigns() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar campanha.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar campanha.');
+      alert(msg);
     } finally {
       setSaving(false);
     }

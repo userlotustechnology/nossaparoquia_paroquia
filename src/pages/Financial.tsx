@@ -59,7 +59,7 @@ export default function Financial() {
       type: item.type,
       amount: item.amount.toString(),
       description: item.description || '',
-      date: item.date || '',
+      date: item.date ? item.date.slice(0, 10) : '',
       category: item.category || '',
       payment_method: item.payment_method || '',
       reference: item.reference || '',
@@ -81,9 +81,13 @@ export default function Financial() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar lançamento.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar lançamento.');
+      alert(msg);
     } finally {
       setSaving(false);
     }

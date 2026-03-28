@@ -109,7 +109,7 @@ export default function Sacraments() {
     setForm({
       parishioner_id: String(item.parishioner_id),
       type: item.type,
-      date: item.date || '',
+      date: item.date ? item.date.slice(0, 10) : '',
       place: item.place || '',
       notes: item.notes || '',
     });
@@ -126,9 +126,13 @@ export default function Sacraments() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar sacramento.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar sacramento.');
+      alert(msg);
     } finally {
       setSaving(false);
     }

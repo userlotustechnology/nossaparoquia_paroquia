@@ -67,7 +67,7 @@ export default function Parishioners() {
       email: item.email || '',
       phone: item.phone || '',
       document: item.document || '',
-      birth_date: item.birth_date || '',
+      birth_date: item.birth_date ? item.birth_date.slice(0, 10) : '',
       gender: item.gender || '',
       address: item.address || '',
       city: item.city || '',
@@ -80,16 +80,24 @@ export default function Parishioners() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        birth_date: form.birth_date || null,
+      };
       if (selected) {
-        await api.put(`/parish-admin/parishioners/${selected.id}`, form);
+        await api.put(`/parish-admin/parishioners/${selected.id}`, payload);
       } else {
-        await api.post('/parish-admin/parishioners', form);
+        await api.post('/parish-admin/parishioners', payload);
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar paroquiano.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar paroquiano.');
+      alert(msg);
     } finally {
       setSaving(false);
     }
