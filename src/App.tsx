@@ -8,6 +8,15 @@ import Dashboard from '@/pages/Dashboard';
 import Parishioners from '@/pages/Parishioners';
 import Events from '@/pages/Events';
 import Financial from '@/pages/Financial';
+import Families from '@/pages/Families';
+import Sacraments from '@/pages/Sacraments';
+import Tithers from '@/pages/Tithers';
+import Masses from '@/pages/Masses';
+import MassIntentions from '@/pages/MassIntentions';
+import AccountPlans from '@/pages/AccountPlans';
+import Spaces from '@/pages/Spaces';
+import Pastorals from '@/pages/Pastorals';
+import Campaigns from '@/pages/Campaigns';
 
 export default function App() {
   return (
@@ -23,8 +32,17 @@ export default function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/paroquianos" element={<Parishioners />} />
-                    <Route path="/eventos" element={<Events />} />
+                    <Route path="/familias" element={<Families />} />
+                    <Route path="/sacramentos" element={<Sacraments />} />
+                    <Route path="/dizimistas" element={<Tithers />} />
                     <Route path="/financeiro" element={<Financial />} />
+                    <Route path="/missas" element={<Masses />} />
+                    <Route path="/intencoes" element={<MassIntentions />} />
+                    <Route path="/eventos" element={<Events />} />
+                    <Route path="/pastorais" element={<Pastorals />} />
+                    <Route path="/campanhas" element={<Campaigns />} />
+                    <Route path="/espacos" element={<Spaces />} />
+                    <Route path="/plano-de-contas" element={<AccountPlans />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>

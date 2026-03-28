@@ -5,8 +5,17 @@ import clsx from 'clsx';
 import {
   LayoutDashboard,
   Users,
-  Calendar,
+  Home,
+  Star,
+  UserCheck,
   DollarSign,
+  BookOpen,
+  Heart,
+  Calendar,
+  Users2,
+  Megaphone,
+  Building2,
+  BarChart3,
   LogOut,
   Menu,
   X,
@@ -14,10 +23,24 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: null },
-  { name: 'Paroquianos', href: '/paroquianos', icon: Users, permission: 'parishioners.index' },
-  { name: 'Eventos', href: '/eventos', icon: Calendar, permission: 'events.index' },
-  { name: 'Financeiro', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index' },
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: null, section: null },
+  // Fiéis
+  { name: 'Paroquianos', href: '/paroquianos', icon: Users, permission: 'parishioners.index', section: 'Fiéis' },
+  { name: 'Famílias', href: '/familias', icon: Home, permission: 'families.index', section: 'Fiéis' },
+  { name: 'Sacramentos', href: '/sacramentos', icon: Star, permission: 'sacraments.index', section: 'Fiéis' },
+  // Arrecadação
+  { name: 'Dizimistas', href: '/dizimistas', icon: UserCheck, permission: 'tithers.index', section: 'Arrecadação' },
+  { name: 'Dízimos', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index', section: 'Arrecadação' },
+  // Liturgia
+  { name: 'Missas', href: '/missas', icon: BookOpen, permission: 'masses.index', section: 'Liturgia' },
+  { name: 'Intenções', href: '/intencoes', icon: Heart, permission: 'mass-intentions.index', section: 'Liturgia' },
+  // Gestão
+  { name: 'Eventos', href: '/eventos', icon: Calendar, permission: 'events.index', section: 'Gestão' },
+  { name: 'Pastorais', href: '/pastorais', icon: Users2, permission: 'pastorals.index', section: 'Gestão' },
+  { name: 'Campanhas', href: '/campanhas', icon: Megaphone, permission: 'campaigns.index', section: 'Gestão' },
+  { name: 'Espaços', href: '/espacos', icon: Building2, permission: 'spaces.index', section: 'Gestão' },
+  // Financeiro
+  { name: 'Plano de Contas', href: '/plano-de-contas', icon: BarChart3, permission: 'account-plans.index', section: 'Financeiro' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -155,25 +178,34 @@ function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: Sid
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {nav.map((item) => {
+      <nav className="flex-1 px-3 py-4">
+        {nav.map((item, idx) => {
+          const prevSection = idx > 0 ? nav[idx - 1].section : null;
+          const showSectionLabel = item.section && item.section !== prevSection;
           const isActive = currentPath === item.href ||
             (item.href !== '/' && currentPath.startsWith(item.href));
+
           return (
-            <Link
-              key={item.name}
-              to={item.href}
-              onClick={onClose}
-              className={clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary-500 text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+            <div key={item.name}>
+              {showSectionLabel && (
+                <p className="text-xs uppercase text-gray-400 font-semibold px-3 py-2 mt-2 mb-1">
+                  {item.section}
+                </p>
               )}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.name}
-            </Link>
+              <Link
+                to={item.href}
+                onClick={onClose}
+                className={clsx(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary-500 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
+            </div>
           );
         })}
       </nav>
