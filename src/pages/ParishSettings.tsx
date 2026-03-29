@@ -103,13 +103,13 @@ interface AdminItem {
 // ─── Constants ──────────────────────────────────────────────────
 
 const TABS = [
-  { key: 'dados', label: 'Dados Gerais' },
+  { key: 'dados', label: 'Dados Gerais', icon: undefined },
   { key: 'missas', label: 'Horários de Missa', icon: Clock },
   { key: 'padres', label: 'Padres', icon: User },
   { key: 'avisos', label: 'Avisos', icon: Megaphone },
   { key: 'galeria', label: 'Galeria', icon: Image },
   { key: 'admins', label: 'Administradores', icon: Shield },
-  { key: 'plano', label: 'Plano' },
+  { key: 'plano', label: 'Plano', icon: undefined },
 ] as const;
 type Tab = typeof TABS[number]['key'];
 
@@ -504,7 +504,7 @@ export default function ParishSettings() {
               <div className="sm:col-span-2 pt-4 border-t border-gray-200">
                 <button onClick={handleSave} disabled={saving || !form.name}
                   className="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 rounded-lg">
-                  {saving ? 'Salvando...' : 'Salvar Dados Gerais'}
+                  {saving ? 'Salvando...' : 'Salvar dados'}
                 </button>
               </div>
             )}
