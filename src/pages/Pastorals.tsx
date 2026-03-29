@@ -11,6 +11,7 @@ interface Pastoral {
   name: string;
   description: string | null;
   logo_path: string | null;
+  logo_url: string | null;
   coordinator?: { id: number; name: string } | null;
   requires_approval: boolean;
   is_active: boolean;
@@ -126,8 +127,8 @@ export default function Pastorals() {
       label: 'Nome',
       render: (p: Pastoral) => (
         <div className="flex items-center gap-2">
-          {p.logo_path && (
-            <img src={p.logo_path} alt="" className="h-8 w-8 rounded-full object-cover" />
+          {(p.logo_url || p.logo_path) && (
+            <img src={p.logo_url || p.logo_path!} alt="" className="h-8 w-8 rounded-full object-cover" />
           )}
           <span className="font-medium text-gray-900">{p.name}</span>
         </div>

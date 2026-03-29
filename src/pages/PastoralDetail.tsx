@@ -10,6 +10,7 @@ interface Pastoral {
   name: string;
   description: string | null;
   logo_path: string | null;
+  logo_url: string | null;
   coordinator_id: number | null;
   coordinator?: { id: number; name: string } | null;
   vice_coordinator_id: number | null;
@@ -117,7 +118,7 @@ export default function PastoralDetail() {
         requires_approval: data.requires_approval,
         is_active: data.is_active,
       });
-      setLogoPreview(data.logo_path || null);
+      setLogoPreview(data.logo_url || data.logo_path || null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -289,8 +290,8 @@ export default function PastoralDetail() {
           <ArrowLeft className="h-5 w-5 text-gray-500" />
         </button>
         <div className="flex items-center gap-3 flex-1">
-          {pastoral.logo_path && (
-            <img src={pastoral.logo_path} alt="" className="h-10 w-10 rounded-full object-cover" />
+          {(pastoral.logo_url || pastoral.logo_path) && (
+            <img src={pastoral.logo_url || pastoral.logo_path!} alt="" className="h-10 w-10 rounded-full object-cover" />
           )}
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{pastoral.name}</h1>

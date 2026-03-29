@@ -98,7 +98,7 @@ export default function Campaigns() {
       status: item.status || 'active',
     });
     setImageFile(null);
-    setImagePreview(item.image_path || item.image_url || null);
+    setImagePreview(item.image_url || item.image_path || null);
     setFormOpen(true);
   };
 
