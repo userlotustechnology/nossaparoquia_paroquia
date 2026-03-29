@@ -175,8 +175,8 @@ interface SidebarContentProps {
 function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full">
-      {/* Parish Info + Close */}
-      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+      {/* Parish Info + Close — mesma altura do header (h-16 = 4rem) */}
+      <div className="flex items-center justify-between shrink-0 h-16 px-4 border-b border-gray-200">
         <div className="flex items-center gap-2.5 min-w-0">
           <img src="/logo.png" alt="Logo" className="h-9 w-9 rounded-full shrink-0" />
           <div className="min-w-0">
@@ -191,8 +191,8 @@ function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: Sid
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4">
+      {/* Navigation — scrollável quando há muitos itens */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
         {nav.map((item, idx) => {
           const prevSection = idx > 0 ? nav[idx - 1].section : null;
           const showSectionLabel = item.section && item.section !== prevSection;
@@ -225,7 +225,7 @@ function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: Sid
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-200">
+      <div className="shrink-0 px-4 py-3 border-t border-gray-200">
         <p className="text-xs text-gray-400">Nossa Paróquia Online</p>
       </div>
     </div>
