@@ -23,6 +23,7 @@ import {
   ChevronDown,
   CalendarRange,
   GraduationCap,
+  Settings,
 } from 'lucide-react';
 
 const navigation = [
@@ -47,6 +48,8 @@ const navigation = [
   // Financeiro
   { name: 'Plano de Contas', href: '/plano-de-contas', icon: BarChart3, permission: 'account-plans.index', section: 'Financeiro' },
   { name: 'Lançamentos', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index', section: 'Financeiro' },
+  // Configurações
+  { name: 'Paróquia', href: '/configuracoes', icon: Settings, permission: null, section: 'Configurações' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -132,6 +135,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
+                    <Link
+                      to="/configuracoes"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Configurações
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"

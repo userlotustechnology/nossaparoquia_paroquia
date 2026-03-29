@@ -25,6 +25,7 @@ import SpaceReservations from '@/pages/SpaceReservations';
 import CatechismGroups from '@/pages/CatechismGroups';
 import CatechismGroupDetail from '@/pages/CatechismGroupDetail';
 import MassDetail from '@/pages/MassDetail';
+import ParishSettings from '@/pages/ParishSettings';
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
                     <Route path="/catequese" element={<CatechismGroups />} />
                     <Route path="/catequese/:id" element={<CatechismGroupDetail />} />
                     <Route path="/plano-de-contas" element={<AccountPlans />} />
+                    <Route path="/configuracoes" element={<ParishSettings />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
