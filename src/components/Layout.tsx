@@ -33,6 +33,7 @@ const navigation = [
   { name: 'Dízimos', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index', section: 'Arrecadação' },
   // Liturgia
   { name: 'Missas', href: '/missas', icon: BookOpen, permission: 'masses.index', section: 'Liturgia' },
+  { name: 'Modelos de Missa', href: '/modelos-missa', icon: BookOpen, permission: 'mass-templates.index', section: 'Liturgia' },
   { name: 'Intenções', href: '/intencoes', icon: Heart, permission: 'mass-intentions.index', section: 'Liturgia' },
   // Gestão
   { name: 'Eventos', href: '/eventos', icon: Calendar, permission: 'events.index', section: 'Gestão' },

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
@@ -9,6 +10,8 @@ interface Pastoral {
   id: number;
   name: string;
   description: string | null;
+  logo_path: string | null;
+  coordinator?: { id: number; name: string } | null;
   requires_approval: boolean;
   is_active: boolean;
   members_count?: number;
@@ -17,6 +20,7 @@ interface Pastoral {
 
 export default function Pastorals() {
   const { hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<Pastoral[]>([]);
   const [meta, setMeta] = useState<any>();
   const [loading, setLoading] = useState(true);
@@ -88,9 +92,13 @@ export default function Pastorals() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar pastoral.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : 'Erro ao salvar pastoral.';
+      alert(msg);
     } finally {
       setSaving(false);
     }
@@ -117,30 +125,25 @@ export default function Pastorals() {
       key: 'name',
       label: 'Nome',
       render: (p: Pastoral) => (
-        <span className="font-medium text-gray-900">{p.name}</span>
+        <div className="flex items-center gap-2">
+          {p.logo_path && (
+            <img src={p.logo_path} alt="" className="h-8 w-8 rounded-full object-cover" />
+          )}
+          <span className="font-medium text-gray-900">{p.name}</span>
+        </div>
       ),
+    },
+    {
+      key: 'coordinator',
+      label: 'Coordenador',
+      render: (p: Pastoral) => (p as any).coordinator?.name || '—',
     },
     {
       key: 'members_count',
-      label: 'Membros',
+      label: 'Membros Ativos',
       render: (p: Pastoral) => (
         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
           {p.members_count ?? 0}
-        </span>
-      ),
-    },
-    {
-      key: 'requires_approval',
-      label: 'Requer Aprovação',
-      render: (p: Pastoral) => (
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-            p.requires_approval
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-green-100 text-green-800'
-          }`}
-        >
-          {p.requires_approval ? 'Sim' : 'Não'}
         </span>
       ),
     },
@@ -177,6 +180,7 @@ export default function Pastorals() {
         onPageChange={setPage}
         onSearch={setSearch}
         onCreate={hasPermission('pastorals.create') ? openCreate : undefined}
+        onView={(item) => navigate(`/pastorais/${item.id}`)}
         onEdit={
           hasPermission('pastorals.update')
             ? openEdit

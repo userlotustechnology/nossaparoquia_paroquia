@@ -12,6 +12,8 @@ interface Campaign {
   goal_amount: number | null;
   deadline: string | null;
   status: string;
+  image_path: string | null;
+  image_url: string | null;
   parish_id: number;
 }
 
@@ -45,6 +47,8 @@ export default function Campaigns() {
     deadline: '',
     status: 'active',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -78,6 +82,8 @@ export default function Campaigns() {
       deadline: '',
       status: 'active',
     });
+    setImageFile(null);
+    setImagePreview(null);
     setFormOpen(true);
   };
 
@@ -90,21 +96,40 @@ export default function Campaigns() {
       deadline: item.deadline ? item.deadline.slice(0, 10) : '',
       status: item.status || 'active',
     });
+    setImageFile(null);
+    setImagePreview(item.image_path || item.image_url || null);
     setFormOpen(true);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = {
-        ...form,
-        goal_amount: form.goal_amount ? parseFloat(form.goal_amount) : null,
-        deadline: form.deadline || null,
-      };
+      const fd = new FormData();
+      fd.append('name', form.name);
+      fd.append('description', form.description);
+      if (form.goal_amount) fd.append('goal_amount', form.goal_amount);
+      fd.append('deadline', form.deadline || '');
+      fd.append('status', form.status);
+      if (imageFile) fd.append('image', imageFile);
+
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       if (selected) {
-        await api.put(`/parish-admin/campaigns/${selected.id}`, payload);
+        fd.append('_method', 'PUT');
+        await api.post(`/parish-admin/campaigns/${selected.id}`, fd, config);
       } else {
-        await api.post('/parish-admin/campaigns', payload);
+        await api.post('/parish-admin/campaigns', fd, config);
       }
       setFormOpen(false);
       fetchData();
@@ -162,7 +187,7 @@ export default function Campaigns() {
       label: 'Prazo',
       render: (c: Campaign) =>
         c.deadline
-          ? new Date(c.deadline + 'T00:00:00').toLocaleDateString('pt-BR')
+          ? new Date(c.deadline.slice(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR')
           : '—',
     },
     {
@@ -233,6 +258,12 @@ export default function Campaigns() {
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem da Campanha</label>
+            <p className="text-xs text-gray-400 mb-1">Recomendado: 800x450px (formato paisagem 16:9)</p>
+            <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm" />
+            {imagePreview && <img src={imagePreview} className="mt-2 rounded-lg max-h-40 object-cover" alt="Preview" />}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

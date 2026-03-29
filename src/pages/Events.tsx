@@ -28,6 +28,9 @@ export default function Events() {
     max_participants: '',
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -49,6 +52,8 @@ export default function Events() {
   const openCreate = () => {
     setSelected(null);
     setForm({ title: '', description: '', starts_at: '', ends_at: '', location: '', type: '', max_participants: '' });
+    setImageFile(null);
+    setImagePreview(null);
     setFormOpen(true);
   };
 
@@ -63,28 +68,48 @@ export default function Events() {
       type: item.type || '',
       max_participants: item.max_participants?.toString() || '',
     });
+    setImageFile(null);
+    setImagePreview((item as any).banner_path || null);
     setFormOpen(true);
   };
 
   const toDatetime = (val: string) => {
     if (!val) return val;
-    // datetime-local returns "YYYY-MM-DDTHH:mm" — backend expects "YYYY-MM-DD HH:mm:ss"
     return val.replace('T', ' ') + (val.length === 16 ? ':00' : '');
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = {
-        ...form,
-        starts_at: toDatetime(form.starts_at),
-        ends_at: form.ends_at ? toDatetime(form.ends_at) : null,
-        max_participants: form.max_participants ? parseInt(form.max_participants) : null,
-      };
+      const fd = new FormData();
+      fd.append('title', form.title);
+      fd.append('description', form.description);
+      fd.append('starts_at', toDatetime(form.starts_at));
+      if (form.ends_at) fd.append('ends_at', toDatetime(form.ends_at));
+      else fd.append('ends_at', '');
+      fd.append('location', form.location);
+      fd.append('type', form.type);
+      if (form.max_participants) fd.append('max_participants', form.max_participants);
+      if (imageFile) fd.append('banner', imageFile);
+
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       if (selected) {
-        await api.put(`/parish-admin/events/${selected.id}`, payload);
+        fd.append('_method', 'PUT');
+        await api.post(`/parish-admin/events/${selected.id}`, fd, config);
       } else {
-        await api.post('/parish-admin/events', payload);
+        await api.post('/parish-admin/events', fd, config);
       }
       setFormOpen(false);
       fetchData();
@@ -170,6 +195,12 @@ export default function Events() {
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
             />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem do Evento</label>
+            <p className="text-xs text-gray-400 mb-1">Recomendado: 1200x630px (formato paisagem 1.91:1)</p>
+            <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm" />
+            {imagePreview && <img src={imagePreview} className="mt-2 rounded-lg max-h-40 object-cover" alt="Preview" />}
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>

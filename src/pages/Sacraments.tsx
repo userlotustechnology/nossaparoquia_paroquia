@@ -13,6 +13,9 @@ interface Sacrament {
   date: string;
   place: string | null;
   notes: string | null;
+  celebrant: string | null;
+  book_number: string | null;
+  page_number: string | null;
   parish_id: number;
 }
 
@@ -26,6 +29,9 @@ const TYPE_LABELS: Record<string, string> = {
   first_communion: 'Primeira Comunhão',
   confirmation: 'Crisma',
   marriage: 'Matrimônio',
+  anointing_of_the_sick: 'Unção dos Enfermos',
+  confession: 'Confissão',
+  holy_orders: 'Ordem',
 };
 
 const TYPE_COLORS: Record<string, string> = {
@@ -33,6 +39,9 @@ const TYPE_COLORS: Record<string, string> = {
   first_communion: 'bg-yellow-100 text-yellow-800',
   confirmation: 'bg-purple-100 text-purple-800',
   marriage: 'bg-pink-100 text-pink-800',
+  anointing_of_the_sick: 'bg-orange-100 text-orange-800',
+  confession: 'bg-teal-100 text-teal-800',
+  holy_orders: 'bg-indigo-100 text-indigo-800',
 };
 
 export default function Sacraments() {
@@ -53,6 +62,9 @@ export default function Sacraments() {
     date: '',
     place: '',
     notes: '',
+    celebrant: '',
+    book_number: '',
+    page_number: '',
   });
 
   const fetchData = useCallback(async () => {
@@ -99,6 +111,9 @@ export default function Sacraments() {
       date: '',
       place: '',
       notes: '',
+      celebrant: '',
+      book_number: '',
+      page_number: '',
     });
     setFormOpen(true);
   };
@@ -112,6 +127,9 @@ export default function Sacraments() {
       date: item.date ? item.date.slice(0, 10) : '',
       place: item.place || '',
       notes: item.notes || '',
+      celebrant: item.celebrant || '',
+      book_number: item.book_number || '',
+      page_number: item.page_number || '',
     });
     setFormOpen(true);
   };
@@ -119,10 +137,16 @@ export default function Sacraments() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      const payload = {
+        ...form,
+        celebrant: form.celebrant || null,
+        book_number: form.book_number || null,
+        page_number: form.page_number || null,
+      };
       if (selected) {
-        await api.put(`/parish-admin/sacraments/${selected.id}`, form);
+        await api.put(`/parish-admin/sacraments/${selected.id}`, payload);
       } else {
-        await api.post('/parish-admin/sacraments', form);
+        await api.post('/parish-admin/sacraments', payload);
       }
       setFormOpen(false);
       fetchData();
@@ -182,7 +206,7 @@ export default function Sacraments() {
       label: 'Data',
       render: (s: Sacrament) =>
         s.date
-          ? new Date(s.date + 'T00:00:00').toLocaleDateString('pt-BR')
+          ? new Date(s.date.slice(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR')
           : '—',
     },
     {
@@ -291,6 +315,39 @@ export default function Sacraments() {
               onChange={(e) => setForm({ ...form, place: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
             />
+          </div>
+          {/* Celebrante, Livro, Folha */}
+          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Celebrante
+              </label>
+              <input
+                value={form.celebrant}
+                onChange={(e) => setForm({ ...form, celebrant: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                N° do Livro
+              </label>
+              <input
+                value={form.book_number}
+                onChange={(e) => setForm({ ...form, book_number: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                N° da Folha
+              </label>
+              <input
+                value={form.page_number}
+                onChange={(e) => setForm({ ...form, page_number: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
+              />
+            </div>
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">

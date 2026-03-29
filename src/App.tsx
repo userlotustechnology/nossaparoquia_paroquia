@@ -11,11 +11,14 @@ import Financial from '@/pages/Financial';
 import Families from '@/pages/Families';
 import Sacraments from '@/pages/Sacraments';
 import Tithers from '@/pages/Tithers';
+import TitherDetail from '@/pages/TitherDetail';
 import Masses from '@/pages/Masses';
 import MassIntentions from '@/pages/MassIntentions';
+import MassTemplates from '@/pages/MassTemplates';
 import AccountPlans from '@/pages/AccountPlans';
 import Spaces from '@/pages/Spaces';
 import Pastorals from '@/pages/Pastorals';
+import PastoralDetail from '@/pages/PastoralDetail';
 import Campaigns from '@/pages/Campaigns';
 
 export default function App() {
@@ -35,11 +38,14 @@ export default function App() {
                     <Route path="/familias" element={<Families />} />
                     <Route path="/sacramentos" element={<Sacraments />} />
                     <Route path="/dizimistas" element={<Tithers />} />
+                    <Route path="/dizimistas/:id" element={<TitherDetail />} />
                     <Route path="/financeiro" element={<Financial />} />
                     <Route path="/missas" element={<Masses />} />
                     <Route path="/intencoes" element={<MassIntentions />} />
+                    <Route path="/modelos-missa" element={<MassTemplates />} />
                     <Route path="/eventos" element={<Events />} />
                     <Route path="/pastorais" element={<Pastorals />} />
+                    <Route path="/pastorais/:id" element={<PastoralDetail />} />
                     <Route path="/campanhas" element={<Campaigns />} />
                     <Route path="/espacos" element={<Spaces />} />
                     <Route path="/plano-de-contas" element={<AccountPlans />} />
