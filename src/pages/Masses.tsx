@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
@@ -44,6 +45,7 @@ const fmtDate = (d: string | null | undefined) =>
 
 export default function Masses() {
   const { hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<Mass[]>([]);
   const [meta, setMeta] = useState<any>();
   const [loading, setLoading] = useState(true);
@@ -261,6 +263,7 @@ export default function Masses() {
         onPageChange={setPage}
         onSearch={setSearch}
         onCreate={hasPermission('masses.create') ? openCreate : undefined}
+        onView={(item) => navigate(`/missas/${item.id}`)}
         onEdit={hasPermission('masses.update') ? openEdit : undefined}
         onDelete={
           hasPermission('masses.delete')

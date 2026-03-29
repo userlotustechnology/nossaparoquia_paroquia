@@ -24,6 +24,7 @@ import EventDetail from '@/pages/EventDetail';
 import SpaceReservations from '@/pages/SpaceReservations';
 import CatechismGroups from '@/pages/CatechismGroups';
 import CatechismGroupDetail from '@/pages/CatechismGroupDetail';
+import MassDetail from '@/pages/MassDetail';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
                     <Route path="/dizimistas/:id" element={<TitherDetail />} />
                     <Route path="/financeiro" element={<Financial />} />
                     <Route path="/missas" element={<Masses />} />
+                    <Route path="/missas/:id" element={<MassDetail />} />
                     <Route path="/intencoes" element={<MassIntentions />} />
                     <Route path="/modelos-missa" element={<MassTemplates />} />
                     <Route path="/eventos" element={<Events />} />
