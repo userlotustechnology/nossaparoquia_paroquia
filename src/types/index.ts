@@ -69,10 +69,16 @@ export interface Event {
   ends_at: string | null;
   location: string | null;
   type: string | null;
+  status: string | null;
   is_active: boolean;
   max_participants: number | null;
+  registration_fee: number | null;
+  requires_approval: boolean;
+  registration_open: boolean;
+  is_public: boolean;
   participants_count?: number;
   banner_path: string | null;
+  banner_url: string | null;
   created_at: string;
   updated_at: string;
 }

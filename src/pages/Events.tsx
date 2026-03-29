@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
@@ -9,6 +10,7 @@ import type { Event as EventType, PaginatedResponse } from '@/types';
 
 export default function Events() {
   const { hasPermission } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState<EventType[]>([]);
   const [meta, setMeta] = useState<PaginatedResponse<EventType>['meta'] | undefined>();
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ export default function Events() {
       max_participants: item.max_participants?.toString() || '',
     });
     setImageFile(null);
-    setImagePreview(item.banner_path || null);
+    setImagePreview(item.banner_url || item.banner_path || null);
     setFormOpen(true);
   };
 
@@ -170,6 +172,7 @@ export default function Events() {
         onPageChange={setPage}
         onSearch={setSearch}
         onCreate={hasPermission('events.create') ? openCreate : undefined}
+        onView={hasPermission('events.index') ? (item) => navigate(`/eventos/${item.id}`) : undefined}
         onEdit={hasPermission('events.update') ? openEdit : undefined}
         onDelete={hasPermission('events.delete') ? (item) => { setSelected(item); setDeleteOpen(true); } : undefined}
         canCreate={hasPermission('events.create')}
