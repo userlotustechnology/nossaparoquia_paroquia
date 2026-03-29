@@ -15,6 +15,11 @@ interface Mass {
   celebrant: string | null;
   notes: string | null;
   is_active: boolean;
+  mass_template_id: number | null;
+  mass_template?: { id: number; name: string } | null;
+  intentions_count?: number;
+  weekday: number | null;
+  scheduled_date: string | null;
   parish_id: number;
 }
 
@@ -26,6 +31,17 @@ const TYPE_LABELS: Record<string, string> = {
   festive: 'Festiva',
 };
 
+const TYPE_COLORS: Record<string, string> = {
+  regular: 'bg-gray-100 text-gray-700',
+  special: 'bg-purple-100 text-purple-800',
+  funeral: 'bg-stone-100 text-stone-700',
+  novena: 'bg-amber-100 text-amber-800',
+  festive: 'bg-rose-100 text-rose-800',
+};
+
+const fmtDate = (d: string | null | undefined) =>
+  d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '';
+
 export default function Masses() {
   const { hasPermission } = useAuth();
   const [data, setData] = useState<Mass[]>([]);
@@ -33,6 +49,7 @@ export default function Masses() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<Mass | null>(null);
@@ -52,7 +69,11 @@ export default function Masses() {
     setLoading(true);
     try {
       const res = await api.get('/parish-admin/masses', {
-        params: { page, search: search || undefined },
+        params: {
+          page,
+          search: search || undefined,
+          type: typeFilter || undefined,
+        },
       });
       setData(res.data.data);
       setMeta(res.data.meta);
@@ -61,7 +82,7 @@ export default function Masses() {
     } finally {
       setLoading(false);
     }
-  }, [page, search]);
+  }, [page, search, typeFilter]);
 
   useEffect(() => {
     fetchData();
@@ -69,7 +90,7 @@ export default function Masses() {
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, typeFilter]);
 
   const openCreate = () => {
     setSelected(null);
@@ -91,7 +112,7 @@ export default function Masses() {
     setForm({
       title: item.title || '',
       type: item.type || 'regular',
-      date: item.date || '',
+      date: item.date ? item.date.slice(0, 10) : '',
       time: item.time?.slice(0, 5) || '',
       location: item.location || '',
       celebrant: item.celebrant || '',
@@ -111,9 +132,13 @@ export default function Masses() {
       }
       setFormOpen(false);
       fetchData();
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Erro ao salvar missa.');
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao salvar missa.');
+      alert(msg);
     } finally {
       setSaving(false);
     }
@@ -140,14 +165,25 @@ export default function Masses() {
       key: 'title',
       label: 'Título',
       render: (m: Mass) => (
-        <span className="font-medium text-gray-900">{m.title}</span>
+        <div>
+          <span className="font-medium text-gray-900">{m.title}</span>
+          {m.mass_template && (
+            <span className="block text-xs text-gray-400 mt-0.5">
+              Modelo: {m.mass_template.name}
+            </span>
+          )}
+        </div>
       ),
     },
     {
       key: 'type',
       label: 'Tipo',
       render: (m: Mass) => (
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+        <span
+          className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+            TYPE_COLORS[m.type] || 'bg-gray-100 text-gray-700'
+          }`}
+        >
           {TYPE_LABELS[m.type] || m.type}
         </span>
       ),
@@ -157,8 +193,7 @@ export default function Masses() {
       label: 'Data / Hora',
       render: (m: Mass) => (
         <span>
-          {m.date ? new Date(m.date + 'T00:00:00').toLocaleDateString('pt-BR') : ''}{' '}
-          {m.time?.slice(0, 5)}
+          {fmtDate(m.date)} {m.time?.slice(0, 5)}
         </span>
       ),
     },
@@ -168,14 +203,21 @@ export default function Masses() {
       render: (m: Mass) => m.celebrant || '—',
     },
     {
+      key: 'intentions_count',
+      label: 'Intenções',
+      render: (m: Mass) => (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+          {m.intentions_count ?? 0}
+        </span>
+      ),
+    },
+    {
       key: 'is_active',
       label: 'Status',
       render: (m: Mass) => (
         <span
           className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-            m.is_active
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-500'
+            m.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'
           }`}
         >
           {m.is_active ? 'Ativa' : 'Inativa'}
@@ -191,6 +233,25 @@ export default function Masses() {
         <p className="text-gray-500">Agenda de missas da paróquia</p>
       </div>
 
+      {/* Filtro por tipo */}
+      <div className="mb-4 flex gap-2 flex-wrap">
+        {[{ value: '', label: 'Todos' }, ...Object.entries(TYPE_LABELS).map(([k, v]) => ({ value: k, label: v }))].map(
+          (opt) => (
+            <button
+              key={opt.value}
+              onClick={() => setTypeFilter(opt.value)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+                typeFilter === opt.value
+                  ? 'bg-primary-500 text-white border-primary-500'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {opt.label}
+            </button>
+          )
+        )}
+      </div>
+
       <DataTable
         title="Lista de Missas"
         columns={columns}
@@ -200,11 +261,7 @@ export default function Masses() {
         onPageChange={setPage}
         onSearch={setSearch}
         onCreate={hasPermission('masses.create') ? openCreate : undefined}
-        onEdit={
-          hasPermission('masses.update')
-            ? openEdit
-            : undefined
-        }
+        onEdit={hasPermission('masses.update') ? openEdit : undefined}
         onDelete={
           hasPermission('masses.delete')
             ? (item) => {
@@ -229,9 +286,7 @@ export default function Masses() {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Título *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
             <input
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -239,25 +294,19 @@ export default function Masses() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
             <select
               value={form.type}
               onChange={(e) => setForm({ ...form, type: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none text-sm"
             >
               {Object.entries(TYPE_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
+                <option key={k} value={k}>{v}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Local
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Local</label>
             <input
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
@@ -265,9 +314,7 @@ export default function Masses() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Data *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Data *</label>
             <input
               type="date"
               value={form.date}
@@ -276,9 +323,7 @@ export default function Masses() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Horário *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Horário *</label>
             <input
               type="time"
               value={form.time}
@@ -287,9 +332,7 @@ export default function Masses() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Celebrante
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Celebrante</label>
             <input
               value={form.celebrant}
               onChange={(e) => setForm({ ...form, celebrant: e.target.value })}
@@ -297,9 +340,7 @@ export default function Masses() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Observações
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -315,9 +356,7 @@ export default function Masses() {
               onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
               className="h-4 w-4 text-primary-600 border-gray-300 rounded"
             />
-            <label htmlFor="mass_active" className="text-sm text-gray-700">
-              Missa ativa
-            </label>
+            <label htmlFor="mass_active" className="text-sm text-gray-700">Missa ativa</label>
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
