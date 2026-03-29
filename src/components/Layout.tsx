@@ -21,6 +21,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  CalendarRange,
+  GraduationCap,
 } from 'lucide-react';
 
 const navigation = [
@@ -41,6 +43,8 @@ const navigation = [
   { name: 'Pastorais', href: '/pastorais', icon: Users2, permission: 'pastorals.index', section: 'Gestão' },
   { name: 'Campanhas', href: '/campanhas', icon: Megaphone, permission: 'campaigns.index', section: 'Gestão' },
   { name: 'Espaços', href: '/espacos', icon: Building2, permission: 'spaces.index', section: 'Gestão' },
+  { name: 'Reservas', href: '/reservas', icon: CalendarRange, permission: 'spaces.index', section: 'Gestão' },
+  { name: 'Catequese', href: '/catequese', icon: GraduationCap, permission: 'catechism-groups.index', section: 'Gestão' },
   // Financeiro
   { name: 'Plano de Contas', href: '/plano-de-contas', icon: BarChart3, permission: 'account-plans.index', section: 'Financeiro' },
 ];

@@ -247,12 +247,12 @@ export default function CatechismGroups() {
         onPageChange={setPage}
         onSearch={setSearch}
         onView={(item) => navigate(`/catequese/${item.id}`)}
-        onCreate={hasPermission('catechism.create') ? openCreate : undefined}
-        onEdit={hasPermission('catechism.update') ? openEdit : undefined}
-        onDelete={hasPermission('catechism.delete') ? (item) => { setSelected(item); setDeleteOpen(true); } : undefined}
-        canCreate={hasPermission('catechism.create')}
-        canEdit={hasPermission('catechism.update')}
-        canDelete={hasPermission('catechism.delete')}
+        onCreate={hasPermission('catechism-groups.create') ? openCreate : undefined}
+        onEdit={hasPermission('catechism-groups.update') ? openEdit : undefined}
+        onDelete={hasPermission('catechism-groups.delete') ? (item) => { setSelected(item); setDeleteOpen(true); } : undefined}
+        canCreate={hasPermission('catechism-groups.create')}
+        canEdit={hasPermission('catechism-groups.update')}
+        canDelete={hasPermission('catechism-groups.delete')}
         createLabel="Nova Turma"
         searchPlaceholder="Buscar turmas..."
         keyExtractor={(g) => g.id}

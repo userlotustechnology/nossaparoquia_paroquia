@@ -20,6 +20,10 @@ import Spaces from '@/pages/Spaces';
 import Pastorals from '@/pages/Pastorals';
 import PastoralDetail from '@/pages/PastoralDetail';
 import Campaigns from '@/pages/Campaigns';
+import EventDetail from '@/pages/EventDetail';
+import SpaceReservations from '@/pages/SpaceReservations';
+import CatechismGroups from '@/pages/CatechismGroups';
+import CatechismGroupDetail from '@/pages/CatechismGroupDetail';
 
 export default function App() {
   return (
@@ -44,10 +48,14 @@ export default function App() {
                     <Route path="/intencoes" element={<MassIntentions />} />
                     <Route path="/modelos-missa" element={<MassTemplates />} />
                     <Route path="/eventos" element={<Events />} />
+                    <Route path="/eventos/:id" element={<EventDetail />} />
                     <Route path="/pastorais" element={<Pastorals />} />
                     <Route path="/pastorais/:id" element={<PastoralDetail />} />
                     <Route path="/campanhas" element={<Campaigns />} />
                     <Route path="/espacos" element={<Spaces />} />
+                    <Route path="/reservas" element={<SpaceReservations />} />
+                    <Route path="/catequese" element={<CatechismGroups />} />
+                    <Route path="/catequese/:id" element={<CatechismGroupDetail />} />
                     <Route path="/plano-de-contas" element={<AccountPlans />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
