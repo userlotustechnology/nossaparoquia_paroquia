@@ -4,6 +4,7 @@ import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Campaign {
   id: number;
@@ -101,8 +102,7 @@ export default function Campaigns() {
     setFormOpen(true);
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleImageChange = (file: File | null) => {
     setImageFile(file);
     if (file) {
       const reader = new FileReader();
@@ -260,10 +260,12 @@ export default function Campaigns() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem da Campanha</label>
-            <p className="text-xs text-gray-400 mb-1">Recomendado: 800x450px (formato paisagem 16:9)</p>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm" />
-            {imagePreview && <img src={imagePreview} className="mt-2 rounded-lg max-h-40 object-cover" alt="Preview" />}
+            <ImageUpload
+              label="Imagem da Campanha"
+              hint="Recomendado: 800×450px (paisagem 16:9)"
+              preview={imagePreview}
+              onChange={handleImageChange}
+            />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

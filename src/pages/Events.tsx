@@ -4,6 +4,7 @@ import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ImageUpload from '@/components/ImageUpload';
 import type { Event as EventType, PaginatedResponse } from '@/types';
 
 export default function Events() {
@@ -78,8 +79,7 @@ export default function Events() {
     return val.replace('T', ' ') + (val.length === 16 ? ':00' : '');
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleImageChange = (file: File | null) => {
     setImageFile(file);
     if (file) {
       const reader = new FileReader();
@@ -197,10 +197,12 @@ export default function Events() {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Imagem do Evento</label>
-            <p className="text-xs text-gray-400 mb-1">Recomendado: 1200x630px (formato paisagem 1.91:1)</p>
-            <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm" />
-            {imagePreview && <img src={imagePreview} className="mt-2 rounded-lg max-h-40 object-cover" alt="Preview" />}
+            <ImageUpload
+              label="Imagem do Evento"
+              hint="Recomendado: 1200×630px (paisagem 1.91:1)"
+              preview={imagePreview}
+              onChange={handleImageChange}
+            />
           </div>
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>

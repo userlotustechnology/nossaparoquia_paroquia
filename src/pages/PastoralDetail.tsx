@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import api from '@/lib/api';
+import ImageUpload from '@/components/ImageUpload';
 
 interface Pastoral {
   id: number;
@@ -139,13 +140,14 @@ export default function PastoralDetail() {
   };
 
   // ─── Info Tab ───────────────────────────────────────────────────
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
+  const handleLogoChange = (file: File | null) => {
     setLogoFile(file);
     if (file) {
       const reader = new FileReader();
       reader.onload = () => setLogoPreview(reader.result as string);
       reader.readAsDataURL(file);
+    } else {
+      setLogoPreview(null);
     }
   };
 
@@ -341,9 +343,12 @@ export default function PastoralDetail() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
-              <input type="file" accept="image/*" onChange={handleLogoChange} className="text-sm" />
-              {logoPreview && <img src={logoPreview} className="mt-2 h-16 w-16 rounded-full object-cover" alt="Logo" />}
+              <ImageUpload
+                label="Logo"
+                hint="Recomendado: imagem quadrada (ex: 200×200px)"
+                preview={logoPreview}
+                onChange={handleLogoChange}
+              />
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-2">
