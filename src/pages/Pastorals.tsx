@@ -15,6 +15,8 @@ interface Pastoral {
   coordinator?: { id: number; name: string } | null;
   requires_approval: boolean;
   is_active: boolean;
+  is_default: boolean;
+  slug: string | null;
   members_count?: number;
   parish_id: number;
 }
@@ -131,6 +133,11 @@ export default function Pastorals() {
             <img src={p.logo_url || p.logo_path!} alt="" className="h-8 w-8 rounded-full object-cover" />
           )}
           <span className="font-medium text-gray-900">{p.name}</span>
+          {p.is_default && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">
+              Padrão
+            </span>
+          )}
         </div>
       ),
     },
@@ -195,6 +202,7 @@ export default function Pastorals() {
               }
             : undefined
         }
+        canDeleteItem={(item) => !item.is_default}
         canCreate={hasPermission('pastorals.create')}
         canEdit={hasPermission('pastorals.update')}
         canDelete={hasPermission('pastorals.delete')}

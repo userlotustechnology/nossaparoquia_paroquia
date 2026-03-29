@@ -33,7 +33,6 @@ const navigation = [
   { name: 'Sacramentos', href: '/sacramentos', icon: Star, permission: 'sacraments.index', section: 'Fiéis' },
   // Arrecadação
   { name: 'Dizimistas', href: '/dizimistas', icon: UserCheck, permission: 'tithers.index', section: 'Arrecadação' },
-  { name: 'Dízimos', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index', section: 'Arrecadação' },
   // Liturgia
   { name: 'Missas', href: '/missas', icon: BookOpen, permission: 'masses.index', section: 'Liturgia' },
   { name: 'Modelos de Missa', href: '/modelos-missa', icon: ClipboardList, permission: 'mass-templates.index', section: 'Liturgia' },
@@ -47,6 +46,7 @@ const navigation = [
   { name: 'Catequese', href: '/catequese', icon: GraduationCap, permission: 'catechism-groups.index', section: 'Gestão' },
   // Financeiro
   { name: 'Plano de Contas', href: '/plano-de-contas', icon: BarChart3, permission: 'account-plans.index', section: 'Financeiro' },
+  { name: 'Lançamentos', href: '/financeiro', icon: DollarSign, permission: 'financial-transactions.index', section: 'Financeiro' },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {

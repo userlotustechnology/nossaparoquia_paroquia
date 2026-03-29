@@ -21,6 +21,7 @@ interface DataTableProps<T> {
   onView?: (item: T) => void;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  canDeleteItem?: (item: T) => boolean;
   createLabel?: string;
   searchPlaceholder?: string;
   canCreate?: boolean;
@@ -41,6 +42,7 @@ export default function DataTable<T>({
   onView,
   onEdit,
   onDelete,
+  canDeleteItem,
   createLabel = 'Novo',
   searchPlaceholder = 'Buscar...',
   canCreate = true,
@@ -150,7 +152,7 @@ export default function DataTable<T>({
                             <Pencil className="h-4 w-4" />
                           </button>
                         )}
-                        {canDelete && onDelete && (
+                        {canDelete && onDelete && (canDeleteItem ? canDeleteItem(item) : true) && (
                           <button
                             onClick={() => onDelete(item)}
                             className="p-1.5 text-gray-400 hover:text-red-600 rounded"

@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import DataTable from '@/components/DataTable';
 import Modal from '@/components/Modal';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { PlusCircle } from 'lucide-react';
 
 interface Tither {
   id: number;
@@ -26,11 +27,26 @@ interface ParishionerOption {
   name: string;
 }
 
+interface AccountPlan {
+  id: number;
+  name: string;
+  code: string;
+}
+
 const PERIOD_LABELS: Record<string, string> = {
   monthly: 'Mensal',
   bimonthly: 'Bimestral',
   quarterly: 'Trimestral',
   yearly: 'Anual',
+};
+
+const METHOD_LABELS: Record<string, string> = {
+  cash: 'Espécie',
+  pix: 'PIX',
+  bank_transfer: 'Transferência bancária',
+  credit_card: 'Cartão de crédito',
+  debit_card: 'Cartão de débito',
+  boleto: 'Boleto',
 };
 
 const fmt = (v: number | null) =>
@@ -41,6 +57,8 @@ const fmt = (v: number | null) =>
 const fmtDate = (d: string | null) =>
   d ? new Date(d.slice(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
 
+const today = () => new Date().toISOString().slice(0, 10);
+
 export default function Tithers() {
   const { hasPermission } = useAuth();
   const navigate = useNavigate();
@@ -50,7 +68,7 @@ export default function Tithers() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
 
-  // form modal
+  // Dizimista form modal
   const [formOpen, setFormOpen] = useState(false);
   const [selected, setSelected] = useState<Tither | null>(null);
   const [saving, setSaving] = useState(false);
@@ -65,6 +83,21 @@ export default function Tithers() {
     reminder_enabled: true,
     notes: '',
   });
+
+  // Contribuição modal
+  const [contribOpen, setContribOpen] = useState(false);
+  const [contribSaving, setContribSaving] = useState(false);
+  const [accountPlans, setAccountPlans] = useState<AccountPlan[]>([]);
+  const [contribForm, setContribForm] = useState({
+    tither_id: '',
+    paid_at: today(),
+    amount: '',
+    method: 'pix',
+    account_plan_id: '',
+    notes: '',
+  });
+  const [allTithers, setAllTithers] = useState<{ id: number; label: string; suggested: number | null }[]>([]);
+  const [tithersLoaded, setTithersLoaded] = useState(false);
 
   // delete
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -100,6 +133,75 @@ export default function Tithers() {
     }
   };
 
+  const loadContribDeps = async () => {
+    if (tithersLoaded) return;
+    try {
+      const [tRes, aRes] = await Promise.all([
+        api.get('/parish-admin/tithers', { params: { per_page: 200, status: 'active' } }),
+        api.get('/parish-admin/account-plans', { params: { per_page: 100 } }),
+      ]);
+      setAllTithers(
+        tRes.data.data.map((t: Tither) => ({
+          id: t.id,
+          label: `${t.parishioner?.name ?? '—'} (#${t.tither_number})`,
+          suggested: t.suggested_amount,
+        }))
+      );
+      setAccountPlans(aRes.data.data);
+      setTithersLoaded(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ─── Contribuição ─────────────────────────────────────────────────
+  const openContrib = async (tither?: Tither) => {
+    await loadContribDeps();
+    setContribForm({
+      tither_id: tither ? String(tither.id) : '',
+      paid_at: today(),
+      amount: tither?.suggested_amount?.toString() ?? '',
+      method: 'pix',
+      account_plan_id: '',
+      notes: '',
+    });
+    setContribOpen(true);
+  };
+
+  const handleContribSave = async () => {
+    setContribSaving(true);
+    try {
+      await api.post('/parish-admin/tithe-contributions', {
+        tither_id: Number(contribForm.tither_id),
+        paid_at: contribForm.paid_at,
+        amount: parseFloat(contribForm.amount),
+        method: contribForm.method,
+        account_plan_id: contribForm.account_plan_id ? Number(contribForm.account_plan_id) : null,
+        notes: contribForm.notes || null,
+      });
+      setContribOpen(false);
+      fetchData();
+    } catch (err: any) {
+      const errors = err?.response?.data?.errors;
+      const msg = errors
+        ? Object.values(errors).flat().join('\n')
+        : (err?.response?.data?.message || 'Erro ao registrar contribuição.');
+      alert(msg);
+    } finally {
+      setContribSaving(false);
+    }
+  };
+
+  // Preencher valor sugerido ao selecionar dizimista
+  const handleTitherSelect = (titherId: string) => {
+    const t = allTithers.find(t => String(t.id) === titherId);
+    setContribForm(prev => ({
+      ...prev,
+      tither_id: titherId,
+      amount: t?.suggested ? String(t.suggested) : prev.amount,
+    }));
+  };
+
   // ─── create / edit ────────────────────────────────────────────────
   const openCreate = async () => {
     await loadParishioners();
@@ -129,7 +231,6 @@ export default function Tithers() {
     try {
       const payload = {
         ...form,
-        joined_at: form.joined_at,
         suggested_amount: form.suggested_amount ? parseFloat(form.suggested_amount) : null,
         preferred_day: form.preferred_day ? parseInt(form.preferred_day) : null,
       };
@@ -141,7 +242,6 @@ export default function Tithers() {
       setFormOpen(false);
       fetchData();
     } catch (err: any) {
-      console.error(err);
       const errors = err?.response?.data?.errors;
       const msg = errors ? Object.values(errors).flat().join('\n') : 'Erro ao salvar dizimista.';
       alert(msg);
@@ -160,7 +260,6 @@ export default function Tithers() {
       setDeleteTarget(null);
       fetchData();
     } catch (err) {
-      console.error(err);
       alert('Erro ao excluir.');
     } finally {
       setSaving(false);
@@ -214,12 +313,25 @@ export default function Tithers() {
     },
   ];
 
+  const canContrib = hasPermission('tithe-contributions.create');
+
   // ─── render ───────────────────────────────────────────────────────
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dizimistas</h1>
-        <p className="text-gray-500">Gestão de dizimistas da paróquia</p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Dizimistas</h1>
+          <p className="text-gray-500">Gestão de dizimistas da paróquia</p>
+        </div>
+        {canContrib && (
+          <button
+            onClick={() => openContrib()}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Lançar Dízimo
+          </button>
+        )}
       </div>
 
       <DataTable
@@ -246,7 +358,105 @@ export default function Tithers() {
         keyExtractor={(t) => t.id}
       />
 
-      {/* ── Form Modal ─────────────────────────────────────────────── */}
+      {/* ── Contribuição Modal ──────────────────────────────────────── */}
+      <Modal open={contribOpen} onClose={() => setContribOpen(false)} title="Lançar Dízimo" size="md">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dizimista *</label>
+            <select
+              value={contribForm.tither_id}
+              onChange={(e) => handleTitherSelect(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+            >
+              <option value="">Selecione o dizimista...</option>
+              {allTithers.map((t) => (
+                <option key={t.id} value={t.id}>{t.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Data do Pagamento *</label>
+              <input
+                type="date"
+                value={contribForm.paid_at}
+                onChange={(e) => setContribForm({ ...contribForm, paid_at: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$) *</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={contribForm.amount}
+                onChange={(e) => setContribForm({ ...contribForm, amount: e.target.value })}
+                placeholder="0,00"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Forma de Pagamento *</label>
+            <select
+              value={contribForm.method}
+              onChange={(e) => setContribForm({ ...contribForm, method: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+            >
+              {Object.entries(METHOD_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+
+          {accountPlans.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plano de Contas</label>
+              <select
+                value={contribForm.account_plan_id}
+                onChange={(e) => setContribForm({ ...contribForm, account_plan_id: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+              >
+                <option value="">— Nenhum —</option>
+                {accountPlans.map((a) => (
+                  <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+            <textarea
+              value={contribForm.notes}
+              onChange={(e) => setContribForm({ ...contribForm, notes: e.target.value })}
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+          <button
+            onClick={() => setContribOpen(false)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleContribSave}
+            disabled={contribSaving || !contribForm.tither_id || !contribForm.paid_at || !contribForm.amount}
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-300 rounded-lg"
+          >
+            {contribSaving ? 'Salvando...' : 'Registrar Dízimo'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* ── Form Modal (dizimista) ──────────────────────────────────── */}
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={selected ? 'Editar Dizimista' : 'Novo Dizimista'} size="lg">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
