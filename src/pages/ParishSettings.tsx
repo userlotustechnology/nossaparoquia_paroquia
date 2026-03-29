@@ -759,11 +759,11 @@ export default function ParishSettings() {
             )}
           </div>
 
-          {/* Secretárias */}
+          {/* Secretários */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Secretárias</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Secretários</h2>
             {admins.secretarias.length === 0 ? (
-              <p className="text-sm text-gray-500">Nenhuma secretária vinculada.</p>
+              <p className="text-sm text-gray-500">Nenhum secretário vinculado.</p>
             ) : (
               <div className="space-y-3">
                 {admins.secretarias.map((a) => (
