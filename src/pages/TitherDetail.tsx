@@ -225,7 +225,7 @@ export default function TitherDetail() {
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Histórico de Contribuições</h2>
-          {hasPermission('tithe_contributions.create') && (
+          {hasPermission('tithes.create') && (
             <button
               onClick={openContribForm}
               className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 rounded-lg"
