@@ -169,7 +169,7 @@ export default function TitherDetail() {
         </span>
         {hasPermission('tithers.update') && (
           <button
-            onClick={() => navigate('/dizimistas', { state: { editId: tither.id } })}
+            onClick={() => navigate('/dizimistas')}
             className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-primary-600 border border-primary-300 rounded-lg hover:bg-primary-50"
           >
             <Pencil className="h-4 w-4" />
@@ -343,7 +343,7 @@ export default function TitherDetail() {
             {contribMeta && contribMeta.last_page > 1 && (
               <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
                 <p className="text-xs text-gray-500">
-                  Mostrando {contribMeta.from}–{contribMeta.to} de {contribMeta.total}
+                  Página {contribMeta.current_page} de {contribMeta.last_page} · {contribMeta.total} registro{contribMeta.total !== 1 ? 's' : ''}
                 </p>
                 <div className="flex gap-1">
                   <button

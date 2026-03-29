@@ -72,6 +72,7 @@ export interface Event {
   is_active: boolean;
   max_participants: number | null;
   participants_count?: number;
+  banner_path: string | null;
   created_at: string;
   updated_at: string;
 }

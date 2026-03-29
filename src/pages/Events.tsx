@@ -69,7 +69,7 @@ export default function Events() {
       max_participants: item.max_participants?.toString() || '',
     });
     setImageFile(null);
-    setImagePreview((item as any).banner_path || null);
+    setImagePreview(item.banner_path || null);
     setFormOpen(true);
   };
 
