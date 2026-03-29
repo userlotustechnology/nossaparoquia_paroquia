@@ -160,23 +160,20 @@ interface SidebarContentProps {
 function SidebarContent({ nav, currentPath, parishName, roleName, onClose }: SidebarContentProps) {
   return (
     <div className="flex flex-col h-full">
-      {/* Logo / Header */}
+      {/* Parish Info + Close */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="h-8 w-8 rounded-full" />
-          <span className="text-lg font-bold text-primary-500">Paróquia</span>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <img src="/logo.png" alt="Logo" className="h-9 w-9 rounded-full shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-gray-900 truncate leading-tight">{parishName}</p>
+            <p className="text-xs text-gray-500 leading-tight">{roleName}</p>
+          </div>
         </div>
         {onClose && (
-          <button onClick={onClose} className="lg:hidden p-1 text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="lg:hidden p-1 text-gray-400 hover:text-gray-600 shrink-0">
             <X className="h-5 w-5" />
           </button>
         )}
-      </div>
-
-      {/* Parish Info */}
-      <div className="px-4 py-3 bg-primary-50 border-b border-primary-100">
-        <p className="text-sm font-medium text-primary-800 truncate">{parishName}</p>
-        <p className="text-xs text-primary-600">{roleName}</p>
       </div>
 
       {/* Navigation */}
