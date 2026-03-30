@@ -4,6 +4,7 @@ import type { User, AdminPermissions, AuthState } from '@/types';
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
 }
@@ -102,6 +103,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const loginWithGoogle = async (credential: string) => {
+    const res = await api.post('/auth/google', {
+      credential,
+      device_name: 'paroquia-web',
+    });
+
+    const { user, token } = res.data.data;
+
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('auth_user', JSON.stringify(user));
+
+    const permissions = await loadPermissions();
+
+    if (!permissions) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      throw new Error('Você não tem permissão para acessar este painel. Apenas sacerdotes e secretárias podem fazer login.');
+    }
+
+    setState({
+      user,
+      token,
+      permissions,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+  };
+
   const logout = async () => {
     try {
       await api.post('/auth/logout');
@@ -127,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, logout, hasPermission }}>
+    <AuthContext.Provider value={{ ...state, login, loginWithGoogle, logout, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );
