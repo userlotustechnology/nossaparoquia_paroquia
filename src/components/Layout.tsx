@@ -68,7 +68,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     (item) => !item.permission || hasPermission(item.permission)
   );
 
-  const roleName = permissions?.parish_role === 'sacerdote' ? 'Sacerdote' : 'Secretária';
+  const roleName = permissions?.parish_role === 'sacerdote' ? 'Sacerdote' : 'Secretaria';
 
   return (
     <div className="min-h-screen bg-gray-50">
