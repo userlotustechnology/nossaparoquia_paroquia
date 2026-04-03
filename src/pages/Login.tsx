@@ -103,7 +103,7 @@ export default function Login() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Senha
                 </label>
-                <a href="https://nossaparoquiaonline.com.br/forgot-password" className="text-xs text-primary-600 hover:text-primary-700 font-medium">
+                <a href="/forgot-password" className="text-xs text-primary-600 hover:text-primary-700 font-medium">
                   Esqueceu a senha?
                 </a>
               </div>
