@@ -65,7 +65,7 @@ export default function Login() {
             <img
               src="/logo.png"
               alt="Nossa Paróquia Online"
-              className="mx-auto w-20 h-20 rounded-full mb-4"
+              className="mx-auto w-24 h-24 rounded-full object-cover mb-4"
             />
             <h1 className="text-2xl font-bold text-gray-900">Painel da Paróquia</h1>
             <p className="text-sm text-gray-500 mt-1">
@@ -99,9 +99,14 @@ export default function Login() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Senha
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Senha
+                </label>
+                <a href="https://nossaparoquiaonline.com.br/forgot-password" className="text-xs text-primary-600 hover:text-primary-700 font-medium">
+                  Esqueceu a senha?
+                </a>
+              </div>
               <div className="relative">
                 <input
                   id="password"
