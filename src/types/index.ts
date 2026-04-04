@@ -99,6 +99,15 @@ export interface FinancialTransaction {
   updated_at: string;
 }
 
+export interface PendingLink {
+  pivot_id: number;
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  user_phone: string | null;
+  requested_at: string;
+}
+
 export interface DashboardMetrics {
   parishioners_count: number;
   families_count: number;
@@ -107,6 +116,8 @@ export interface DashboardMetrics {
   events_upcoming: number;
   income_this_month: number;
   expense_this_month: number;
+  pending_links_count: number;
+  pending_links: PendingLink[];
   recent_parishioners: Parishioner[];
   upcoming_events: Event[];
 }
